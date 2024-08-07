@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="jsola.com.txy.Mapper.MaterialOpreationMapper">
+
+    <insert id="saveMaterial" keyProperty="id" useGeneratedKeys="true">
+        insert into storage_system3.material(name, description)
+        VALUES (#{name}, #{description})
+    </insert>
+    <delete id="moveMaterialFromInventory">
+        delete from storage_system3.inventory where id in
+        <foreach collection="inventoryIdList" separator="," open="(" close=")" item="id">
+            #{id}
+        </foreach>
+    </delete>
+    <select id="getAllAreaIds" resultType="java.lang.Integer">
+        select area_id from storage_system3.storage_location where id in
+        <foreach collection="locationIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+    <select id="getAllWarehouseIds" resultType="java.lang.Integer">
+        select warehouse_id from storage_system3.storage_area where id in
+        <foreach collection="newAreaIds" separator="," open="(" close=")" item="id">
+        #{id}
+        </foreach>
+    </select>
+</mapper>

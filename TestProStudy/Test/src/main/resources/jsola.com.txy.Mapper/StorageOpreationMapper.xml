@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="jsola.com.txy.Mapper.StorageOpreationMapper">
+
+    <insert id="addArea">
+        insert into storage_system3.storage_area(name, warehouse_id) VALUES
+        <foreach collection="areaNames" separator="," item="name">
+            (#{name},#{warehouseId})
+        </foreach>
+    </insert>
+    <insert id="AddLocation">
+        insert into storage_system3.storage_location(name, area_id) VALUES
+        <foreach collection="locationName" separator="," item="name">
+            (#{name},#{areaId})
+        </foreach>
+    </insert>
+    <delete id="deleteByLocationIdList">
+        delete from storage_system3.storage_location where id in
+        <foreach collection="AllLocationId" separator="," open="(" close=")" item="id">
+            #{id}
+        </foreach>
+    </delete>
+    <delete id="deleteByAreaIdList">
+        delete from storage_system3.storage_area where id in
+        <foreach collection="collect" separator="," open="(" close=")" item="id">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!--查找库位id根据区位id的集合-->
+    <select id="getAllLocationByAreaIdList" resultType="java.lang.Integer">
+        select sl.id from storage_system3.storage_location sl where area_id in
+        <foreach collection="collect" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
+    <!--查询所有的warehouse-->
+    <!-- 结果映射 -->
+    <resultMap id="warehouseResultMap" type="jsola.com.txy.pojo.WarehouseVO">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="organizationId" column="organization_id"/>
+        <result property="hasLocation" column="has_location"/>
+        <result property="readyArea" column="ready_area"/>
+        <collection property="storageAreaVOS" ofType="jsola.com.txy.pojo.StorageAreaVO" column="id" select="selectStorageAreasByWarehouseId"/>
+    </resultMap>
+
+    <resultMap id="storageAreaResultMap" type="jsola.com.txy.pojo.StorageAreaVO">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="warehouseId" column="warehouse_id"/>
+        <result property="readyLocation" column="ready_location"/>
+        <collection property="storageLocations" ofType="jsola.com.txy.pojo.StorageLocation" column="id" select="selectStorageLocationsByAreaId"/>
+    </resultMap>
+
+    <resultMap id="storageLocationResultMap" type="jsola.com.txy.pojo.StorageLocation">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="areaId" column="area_id"/>
+        <result property="materialId" column="material_id"/>
+    </resultMap>
+
+    <!-- 查询所有仓库 -->
+    <select id="selectAllWarehouses" resultMap="warehouseResultMap">
+        SELECT * FROM warehouse
+    </select>
+    <!-- 根据id查询仓库 -->
+    <select id="getWarehouseById" resultMap="warehouseResultMap">
+        SELECT * FROM warehouse
+    </select>
+
+    <!-- 根据仓库ID查询存储区域 -->
+    <select id="selectStorageAreasByWarehouseId" resultMap="storageAreaResultMap">
+        SELECT * FROM storage_area WHERE warehouse_id = #{warehouseId}
+    </select>
+
+    <!-- 根据存储区域ID查询存储位置 -->
+    <select id="selectStorageLocationsByAreaId" resultMap="storageLocationResultMap">
+        SELECT * FROM storage_location WHERE area_id = #{areaId}
+    </select>
+
+
+
+</mapper>
